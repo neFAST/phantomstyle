@@ -233,16 +233,12 @@ QColor lightShadeOf(const QColor& underlying) {
 QColor darkShadeOf(const QColor& underlying) {
   return adjustLightness(underlying, -0.07);
 }
-QColor overhangShadowOf(const QColor& underlying) {
-  return adjustLightness(underlying, -0.05);
-}
 QColor sliderGutterShadowOf(const QColor& underlying) {
   return adjustLightness(underlying, -0.01);
 }
 QColor specularOf(const QColor& underlying) {
   return adjustLightness(underlying, 0.03);
 }
-QColor pressedOf(const QColor& color) { return adjustLightness(color, -0.02); }
 QColor indicatorColorOf(const QPalette& palette,
                         QPalette::ColorGroup group = QPalette::Current) {
   return Grad(palette.color(group, QPalette::WindowText),
@@ -1431,14 +1427,14 @@ void PhantomStyle::drawPrimitive(PrimitiveElement elem,
   }
   case PE_FrameDockWidget: {
     painter->save();
-    QColor softshadow = option->palette.background().color().darker(120);
+    QColor softshadow = option->palette.window().color().darker(120);
     QRect r = option->rect;
     painter->setPen(softshadow);
     painter->drawRect(r.adjusted(0, 0, -1, -1));
     painter->setPen(QPen(option->palette.light(), 1));
     painter->drawLine(QPoint(r.left() + 1, r.top() + 1),
                       QPoint(r.left() + 1, r.bottom() - 1));
-    painter->setPen(QPen(option->palette.background().color().darker(120)));
+    painter->setPen(QPen(option->palette.window().color().darker(120)));
     painter->drawLine(QPoint(r.left() + 1, r.bottom() - 1),
                       QPoint(r.right() - 2, r.bottom() - 1));
     painter->drawLine(QPoint(r.right() - 1, r.top() + 1),
@@ -1538,8 +1534,6 @@ void PhantomStyle::drawPrimitive(PrimitiveElement elem,
         cg = QPalette::Inactive;
 
       QColor highlight = option->palette.color(cg, QPalette::Highlight);
-      if (vopt->state & QStyle::State_MouseOver)
-        highlight.setAlpha(128);
 
       if (vopt->showDecorationSelected &&
             (vopt->state & QStyle::State_Selected ||
@@ -1553,10 +1547,7 @@ void PhantomStyle::drawPrimitive(PrimitiveElement elem,
           painter->setBrushOrigin(oldBO);
         }
 
-        if (vopt->state & QStyle::State_Selected ||
-            vopt->state & QStyle::State_MouseOver) {
-          QRect textRect =
-              subElementRect(QStyle::SE_ItemViewItemText, option, widget);
+        if (vopt->state & QStyle::State_Selected) {
           painter->fillRect(vopt->rect, QBrush(highlight));
         }
       }
@@ -2702,9 +2693,6 @@ void PhantomStyle::drawControl(ControlElement element,
     painter->fillRect(r, swatch.color(fill));
 
     if (!mbi->icon.isNull()) {
-      const auto metrics =
-          Ph::MenuItemMetrics::ofFontHeight(option->fontMetrics.height());
-
       QIcon::Mode mode =
           mbi->state & State_Enabled ? QIcon::Normal : QIcon::Disabled;
       QIcon::State state = mbi->state & State_On ? QIcon::On : QIcon::Off;
@@ -3432,14 +3420,14 @@ void PhantomStyle::drawComplexControl(ComplexControl control,
                                       : outline.darker(110));
     QColor titleBarHighlight(active
                                  ? highlight.lighter(120)
-                                 : palette.background().color().lighter(120));
+                                 : palette.window().color().lighter(120));
     QColor textColor(active ? 0xffffff : 0xff000000);
     QColor textAlphaColor(active ? 0xffffff : 0xff000000);
 
     {
       // Fill title
       QColor titlebarColor =
-          QColor(active ? highlight : palette.background().color());
+          QColor(active ? highlight : palette.window().color());
       painter->fillRect(option->rect.adjusted(1, 1, -1, 0), titlebarColor);
       // Frame and rounded corners
       painter->setPen(titleBarFrameBorder);
@@ -5157,7 +5145,7 @@ int PhantomStyle::styleHint(StyleHint hint, const QStyleOption* option,
   case SH_PrintDialog_RightAlignButtons:
   case SH_FontDialog_SelectAssociatedText:
   case SH_ComboBox_ListMouseTracking:
-  case SH_ScrollBar_StopMouseOverSlider:
+  case SH_Slider_StopMouseOverSlider:
   case SH_ScrollBar_MiddleClickAbsolutePosition:
   case SH_TitleBar_AutoRaise:
   case SH_TitleBar_NoBorder:
